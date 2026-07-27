@@ -1,0 +1,140 @@
+﻿<main class="app-shell">
+  <header class="hero">
+    <p class="kicker">Aluguel de Motos</p>
+    <h1>Central de Reservas</h1>
+    <p class="subtitle">Escolha uma moto disponivel e solicite a reserva com um clique.</p>
+    <button type="button" (click)="carregarDados()">Atualizar dados</button>
+    <button type="button" (click)="solicitarTodasReservas()" [disabled]="processandoReservasEmLote || reservandoMotoId !== null || motosDisponiveis.length === 0">
+      {{ tipoProcessamentoEmLote === 'reservar' ? 'Solicitando reservas...' : 'Solicitar todas as reservas' }}
+    </button>
+    <button type="button" (click)="excluirTodasReservas()" [disabled]="processandoReservasEmLote || reservandoMotoId !== null || reservas.length === 0">
+      {{ tipoProcessamentoEmLote === 'excluir' ? 'Excluindo reservas...' : 'Excluir todas as reservas' }}
+    </button>
+
+  </header>
+  
+  <section class="dashboard" aria-label="Painel de motos e reservas">
+    <article class="card">
+      <div class="card-head">
+        <h2>Motos disponiveis</h2>
+        <span class="chip">{{ motosDisponiveis.length }} itens</span>
+      </div>
+
+      @if (carregandoMotos) {
+      <p class="state">Carregando motos...</p>
+      } @else if (erroMotos) {
+      <p class="state error">{{ erroMotos }}</p>
+      } @else if (motosDisponiveis.length === 0) {
+      <p class="state">Nenhuma moto disponivel no momento.</p>
+      } @else {
+      <ul class="items">
+        @for (moto of motosDisponiveis; track moto.id) {
+        <li class="item">
+          <div>
+            <p class="item-title">{{ moto.descricao }}</p>
+            <p class="item-meta">Moto #{{ moto.id }}</p>
+          </div>
+          <button type="button" (click)="reservarMoto(moto.id)" [disabled]="reservandoMotoId !== null || processandoReservasEmLote">
+            {{ reservandoMotoId === moto.id ? 'Reservando...' : 'Solicitar reserva' }}
+          </button>
+        </li>
+        }
+      </ul>
+      }
+    </article>
+
+    <article class="card card-right">
+      <div class="card-head">
+        <h2>Reservas existentes</h2>
+        <span class="chip">{{ reservas.length }} registros</span>
+      </div>
+
+      @if (carregandoReservas) {
+      <p class="state">Carregando reservas...</p>
+      } @else if (erroReservas) {
+      <p class="state error">{{ erroReservas }}</p>
+      } @else if (reservas.length === 0) {
+      <p class="state">Nenhuma reserva encontrada.</p>
+      } @else {
+      <ul class="items">
+        @for (reserva of reservas; track reserva.id) {
+        <li class="item reserve-item">
+          <div>
+            <p class="item-title">Reserva #{{ reserva.id }}</p>
+            <p class="item-meta">Moto #{{ reserva.motoId }}</p>
+          </div>
+          <span class="status" [class.status-success]="reserva.status === 'Reservada'" [class.status-neutral]="reserva.status !== 'Reservada'">
+            {{ reserva.status }}
+          </span>
+          <button type="button" (click)="excluirReserva(reserva.id)" [disabled]="reservandoMotoId !== null || processandoReservasEmLote">
+            {{ reservandoMotoId === reserva.motoId ? 'Reservando...' : 'Excluir reserva' }}
+          </button>
+        </li>
+        }
+      </ul>
+      }
+    </article>
+  </section>
+  
+  <header class="hero">
+    <p class="kicker">Cache por Redis</p>
+    <p class="countdown">Tempo restante: {{ tempoRestante }}s</p>
+  </header>
+
+  <section class="dashboard" aria-label="Painel de motos e reservas">
+    <article class="card">
+      <div class="card-head">
+        <h2>Motos disponiveis (Cache)</h2>
+        <span class="chip">{{ motosDisponiveisCache.length }} itens</span>
+      </div>
+
+      @if (carregandoMotosCache) {
+      <p class="state">Carregando motos (cache)...</p>
+      } @else if (erroMotosCache) {
+      <p class="state error">{{ erroMotosCache }}</p>
+      } @else if (motosDisponiveisCache.length === 0) {
+      <p class="state">Nenhuma moto disponivel no momento (cache).</p>
+      } @else {
+      <ul class="items">
+        @for (moto of motosDisponiveisCache; track moto.id) {
+        <li class="item">
+          <div>
+            <p class="item-title">{{ moto.descricao }}</p>
+            <p class="item-meta">Moto #{{ moto.id }}</p>
+          </div>
+        </li>
+        }
+      </ul>
+      }
+    </article>
+
+    <article class="card card-right">
+      <div class="card-head">
+        <h2>Reservas existentes (Cache)</h2>
+        <span class="chip">{{ reservasCache.length }} registros</span>
+      </div>
+
+      @if (carregandoReservasCache) {
+      <p class="state">Carregando reservas (cache)...</p>
+      } @else if (erroReservasCache) {
+      <p class="state error">{{ erroReservasCache }}</p>
+      } @else if (reservasCache.length === 0) {
+      <p class="state">Nenhuma reserva encontrada (cache).</p>
+      } @else {
+      <ul class="items">
+        @for (reserva of reservasCache; track reserva.id) {
+        <li class="item reserve-item">
+          <div>
+            <p class="item-title">Reserva #{{ reserva.id }}</p>
+            <p class="item-meta">Moto #{{ reserva.motoId }}</p>
+          </div>
+          <span class="status" [class.status-success]="reserva.status === 'Reservada'" [class.status-neutral]="reserva.status !== 'Reservada'">
+            {{ reserva.status }}
+          </span>
+        </li>
+        }
+      </ul>
+      }
+    </article>
+  </section>
+</main>
